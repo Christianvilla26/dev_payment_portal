@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_payment" name="Portal My Home : Payment" inherit_id="portal.portal_my_home" priority="20">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t  t-call="portal.portal_docs_entry">
+                <t t-set="title">Payment</t>
+                <t t-set="url" t-value="'/my/payment'"/>
+                <t t-set="count" t-value="payment_count"/>
+            </t>
+        </xpath>
+    </template>
+    
+     <template id="portal_home_Payment" name="Portal layout : Payment menu entries" inherit_id="portal.portal_breadcrumbs" priority="20">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            
+            <li t-if="page_name == 'payment' or payment" t-attf-class="breadcrumb-item #{'active ' if not event else ''}">
+                <a t-if="payment" t-attf-href="/my/payment?{{ keep_query() }}">Payment</a>
+                <t t-else="">Payment</t>
+            </li>
+			<li t-if="p_name" t-attf-class="breadcrumb-item #{'active ' if not event else ''}">
+					<span t-esc="p_name"/>
+<!--                <a t-if="payment" t-attf-href="/my/payment?{{ keep_query() }}">Payment</a>-->
+<!--                <t t-else="">Payment</t>-->
+            </li>
+        </xpath>
+    </template>
+    
+        
+    <template id="portal_my_payment" name="My Payment">
+    
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Payment</t>
+            </t>
+            <t t-if="not payment">
+                <p>There are currently no Payment for your account.</p>
+            </t>
+            <t t-if="payment" t-call="portal.portal_table">
+                <t t-foreach="grouped_payment" t-as="group_payment">
+                    <thead >
+                        <tr t-attf-class="{{'thead-light' if not groupby == 'none' else ''}}" >
+                            <th t-if="groupby == 'none'">Name</th>
+                            <th t-else="">
+                                <t t-if="groupby == 'partner_id'">
+                                    <em class="font-weight-normal text-muted">Partner:</em>
+                                    <span t-field="group_payment[0].sudo().partner_id"/>
+                                </t>
+                                <t t-if="groupby == 'company_id'">
+                                    <em class="font-weight-normal text-muted">Company:</em>
+                                    <span t-field="group_payment[0].sudo().company_id.name"/>
+                                </t>
+                            </th>
+<!--                            <th class="text-left">Payment Date</th>-->
+                            <th class="text-left">Payment Date</th>
+                            <th class="text-left">Payment Journal</th>
+                            <th class="text-left">Payment Method Type</th>
+<!--                            <th class="text-left">Customer</th>-->
+                            <th class="text-left">Payment Amount</th>
+<!--                            <th class="text-left">Company</th>-->
+			   				 <th class="text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <t t-foreach="group_payment" t-as="l">
+                        <tr>
+                            <td><a t-att-href="l.get_portal_url()"><t t-esc="l.name"/></a></td>
+<!--                            <td class="text-left"><span t-field="l.name"/></td>-->
+							<td class="text-left"><span t-field="l.date" t-options='{"widget": "date"}' /></td>
+                            <td class="text-left"><span t-field="l.journal_id" /></td>
+                            <td class="text-left"><span t-field="l.payment_method_id"/></td>
+<!--                            <td class="text-left"><span t-field="l.partner_id"/></td>-->
+                            <td class="text-left"><span t-field="l.amount"/></td>
+<!--                            <td class="text-left"><span t-field="l.company_id"/></td>-->
+							<td class="text-left"><span t-field="l.state"/></td>
+                        </tr>
+                    </t>
+                    </tbody>
+                </t>
+            </t>
+        </t>
+    </template>
+    
+	<template id="payment_portal_template" name="Payment Portal Template" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <div class="row mt16 o_portal_sale_sidebar">
+
+			<t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-auto d-print-none'"/>
+                    <t t-set="title">
+                        <h2 class="mb-0">Payment</h2>
+                    </t>
+                    <t t-set="entries">
+                        <ul class="list-group list-group-flush flex-wrap flex-row flex-lg-column">
+                            <li class="list-group-item flex-grow-1">
+                                <div class="o_download_pdf btn-toolbar flex-sm-nowrap">
+                                    <div class="btn-group flex-grow-1 mr-1 mb-1">
+                                        <a class="btn btn-secondary btn-block o_download_btn" t-att-href="payment.get_portal_url(report_type='pdf', download=True)" title="Download"><i class="fa fa-download"/> Download</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="navspy list-group-item pl-0 flex-grow-1" t-ignore="true" role="complementary">
+                                <ul class="nav flex-column bs-sidenav"></ul>
+                            </li>
+                            <li t-if="payment.user_id" class="list-group-item flex-grow-1">
+                                <div class="small mb-1"><strong class="text-muted">Your Contact</strong></div>
+                                <div class="row flex-nowrap">
+                                    <div class="col flex-grow-0 pr-2">
+                                        <img class="rounded-circle mr4 float-left o_portal_contact_img" t-if="payment.user_id.image_1920" t-att-src="image_data_uri(payment.user_id.image_1920)" alt="Contact"/>
+                                        <img class="rounded-circle mr4 float-left o_portal_contact_img" t-if="not payment.user_id.image_1920" src="/web/static/src/img/placeholder.png" alt="Contact"/>
+                                    </div>
+                                    <div class="col pl-0" style="min-width: 150px">
+                                        <span t-field="payment.user_id.user_id" t-options='{"widget": "contact", "fields": ["name", "phone"], "no_marker": True}'/>
+                                        <a href="#discussion" class="small"><i class="fa fa-comment"></i> Send message</a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </t>
+                </t>			
+
+		
+
+                <div id="leave_content" class="col-12 col-lg justify-content-end">
+	                <div t-attf-class="card #{'pb-5' if report_type == 'html' else ''}">
+                        <div t-call="dev_payment_portal.payment_portal_content"/>
+                    </div>
+
+	                <div id="loan_communication" class="mt-4">
+	                    <h2>Communication</h2>
+	                    <t t-call="portal.message_thread"> 
+ 	                        <t t-set="object" t-value="payment"/> 
+ 	                    </t> 
+	                </div>
+	            </div>
+            </div>
+        </xpath>
+    </template>
+    
+    <template id="payment_portal_content" name="Payment Form">
+    
+        <div t-attf-class="#{'card-body' if report_type == 'html' else ''}">
+            <div id="informations">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <table width="100%">
+                            <tr>
+                                <td width="35%" style="padding:3px"><b>Payment Type</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.payment_type"/></td>
+                            </tr>
+							<tr>
+                                <td width="35%" style="padding:3px"><b>Partner Type</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.partner_type"/></td>
+                            </tr>
+							<tr>
+                                <td width="35%" style="padding:3px"><b>Customer/Vendor</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.partner_id"/></td>
+                            </tr>
+							<tr>
+                                <td width="35%" style="padding:3px"><b>Company</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.company_id"/></td>
+                            </tr>
+							<tr>
+                                <td width="35%" style="padding:3px"><b>Amount</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.amount"/></td>
+                            </tr>
+                            
+                        </table>
+                    </div>
+                    <div class="col-lg-6">
+                        <table width="100%">
+							<tr>
+                                <td width="35%" style="padding:3px"><b>Date</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.date"/></td>
+                            </tr>
+							<tr>
+                                <td width="35%" style="padding:3px"><b>Memo</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.ref"/></td>
+                            </tr>
+                            <tr>
+                                <td width="35%" style="padding:3px"><b>Journal</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.journal_id" /></td>
+                            </tr>
+							<tr>
+                                <td width="35%" style="padding:3px"><b>Recipient Bank Account</b></td>
+                                <td width="5%" style="padding:3px">:</td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.partner_bank_id" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </template>
+
+
+</odoo>
