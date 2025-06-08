@@ -123,23 +123,21 @@ class CustomerPortal(CustomerPortal):
             'all': {'input': 'all', 'label': _('Search in All')},
         }
 
-		# search
+        # search
         if search and search_in:
-        	search_domain = []
-        	if search_in in ('name', 'all'):
-        		search_domain = OR([search_domain, [('name', 'ilike', search)]])
-        	if search_in in ('destination_account_id', 'all'):
-        		search_domain = OR([search_domain, [('destination_account_id', 'ilike', search)]])
-        	if search_in in ('company_id', 'all'):
-        		search_domain = OR([search_domain, [('company_id', 'ilike', search)]])
-        	if search_in in ('journal_id', 'all'):
-        		search_domain = OR([search_domain, [('journal_id', 'ilike', search)]])
-        	if search_in in ('state', 'all'):
-        		search_domain = OR([search_domain, [('state', 'ilike', search)]])
-        	domain += search_domain
+            search_domain = []
+            if search_in in ('name', 'all'):
+                search_domain = OR([search_domain, [('name', 'ilike', search)]])
+            if search_in in ('destination_account_id', 'all'):
+                search_domain = OR([search_domain, [('destination_account_id', 'ilike', search)]])
+            if search_in in ('company_id', 'all'):
+                search_domain = OR([search_domain, [('company_id', 'ilike', search)]])
+            if search_in in ('journal_id', 'all'):
+                search_domain = OR([search_domain, [('journal_id', 'ilike', search)]])
+            if search_in in ('state', 'all'):
+                search_domain = OR([search_domain, [('state', 'ilike', search)]])
+            domain += search_domain
 
-
-        
         # make pager
         pager = portal_pager(
             url="/my/payment",
@@ -181,35 +179,35 @@ class CustomerPortal(CustomerPortal):
         return request.render("dev_payment_portal.portal_my_payment", values)
 
 
-    @http.route(['/my/payment/<int:order_id>'], type='http', auth="public", website=True)
-    def portal_payment_page(self, order_id, report_type=None, access_token=None, message=False, download=False, **kw):
-        try:
-            account_payment_sudo = self._document_check_access('account.payment', order_id, access_token=access_token) 
-        except (AccessError, MissingError):
-            return request.redirect('/my')
-        now = fields.Date.today()
-        if report_type in ('html', 'pdf', 'text'):
-        	return self._show_report(model=account_payment_sudo, report_type=report_type, report_ref='account.action_report_payment_receipt', download=download)
-        if account_payment_sudo and request.session.get('view_payment_%s' % account_payment_sudo.id) != now and request.env.user.share and access_token:
-            request.session['view_rma_%s' % account_payment_sudo.id] = now
-            body = _('Leave viewed by customer')
-            _message_post_helper(res_model='account.payment', res_id=account_payment_sudo.id, message=body, token=account_payment_sudo.access_token, message_type='notification', subtype="mail.mt_note", partner_ids=account_payment_sudo.user_id.sudo().partner_id.ids)
-        values = {
-            'payment': account_payment_sudo,
-            'message': message,
-            'token': access_token,
-            'bootstrap_formatting': True,
-            'report_type': 'html',
-			'p_name':account_payment_sudo.name,
+    # @http.route(['/my/payment/<int:order_id>'], type='http', auth="public", website=True)
+    # def portal_payment_page(self, order_id, report_type=None, access_token=None, message=False, download=False, **kw):
+    #     try:
+    #         account_payment_sudo = self._document_check_access('account.payment', order_id, access_token=access_token) 
+    #     except (AccessError, MissingError):
+    #         return request.redirect('/my')
+    #     now = fields.Date.today()
+    #     if report_type in ('html', 'pdf', 'text'):
+    #         return self._show_report(model=account_payment_sudo, report_type=report_type, report_ref='account.action_report_payment_receipt', download=download)
+    #     if account_payment_sudo and request.session.get('view_payment_%s' % account_payment_sudo.id) != now and request.env.user.share and access_token:
+    #         request.session['view_rma_%s' % account_payment_sudo.id] = now
+    #         body = _('Leave viewed by customer')
+    #         _message_post_helper(res_model='account.payment', res_id=account_payment_sudo.id, message=body, token=account_payment_sudo.access_token, message_type='notification', subtype="mail.mt_note", partner_ids=account_payment_sudo.user_id.sudo().partner_id.ids)
+    #     values = {
+    #         'payment': account_payment_sudo,
+    #         'message': message,
+    #         'token': access_token,
+    #         'bootstrap_formatting': True,
+    #         'report_type': 'html',
+	# 		'p_name':account_payment_sudo.name,
 			
 		
-        }
-        if account_payment_sudo.company_id:
-            values['res_company'] = account_payment_sudo.company_id
-        if account_payment_sudo.name:
-            history = request.session.get('my_contact_history', [])
-        values.update(get_records_pager(history, account_payment_sudo))
-        return request.render('dev_payment_portal.payment_portal_template', values)
+    #     }
+    #     if account_payment_sudo.company_id:
+    #         values['res_company'] = account_payment_sudo.company_id
+    #     if account_payment_sudo.name:
+    #         history = request.session.get('my_contact_history', [])
+    #     values.update(get_records_pager(history, account_payment_sudo))
+    #     return request.render('dev_payment_portal.payment_portal_template', values)
 
 
 

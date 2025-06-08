@@ -40,7 +40,7 @@
                 <t t-foreach="grouped_payment" t-as="group_payment">
                     <thead >
                         <tr t-attf-class="{{'thead-light' if not groupby == 'none' else ''}}" >
-                            <th t-if="groupby == 'none'">Name</th>
+                            <th t-if="groupby == 'none'"></th>
                             <th t-else="">
                                 <t t-if="groupby == 'partner_id'">
                                     <em class="font-weight-normal text-muted">Partner:</em>
@@ -51,28 +51,23 @@
                                     <span t-field="group_payment[0].sudo().company_id.name"/>
                                 </t>
                             </th>
-<!--                            <th class="text-left">Payment Date</th>-->
-                            <th class="text-left">Payment Date</th>
-                            <th class="text-left">Payment Journal</th>
-                            <th class="text-left">Payment Method Type</th>
-<!--                            <th class="text-left">Customer</th>-->
-                            <th class="text-left">Payment Amount</th>
-<!--                            <th class="text-left">Company</th>-->
-			   				 <th class="text-left">Status</th>
+                            <th class="text-left">Memo</th>
+                            <th class="text-left">Fecha de Pago</th>
+                            <th class="text-left">Mora Pagada</th>
+                            <th class="text-left">Capital</th>
+                            <th class="text-left">Monto</th>
                         </tr>
                     </thead>
                     <tbody>
                     <t t-foreach="group_payment" t-as="l">
                         <tr>
-                            <td><a t-att-href="l.get_portal_url()"><t t-esc="l.name"/></a></td>
-<!--                            <td class="text-left"><span t-field="l.name"/></td>-->
+                            <td><a><t t-esc="l.name"/></a></td>
+                            <td class="text-left"><span t-field="l.ref"/></td>
 							<td class="text-left"><span t-field="l.date" t-options='{"widget": "date"}' /></td>
-                            <td class="text-left"><span t-field="l.journal_id" /></td>
-                            <td class="text-left"><span t-field="l.payment_method_id"/></td>
-<!--                            <td class="text-left"><span t-field="l.partner_id"/></td>-->
+                            <td class="text-left"><span t-field="l.mora_pagada_custom_sr"/></td>
+                            <t t-set="current_capital" t-value="l.amount - l.mora_pagada_custom_sr" />
+                            <td class="text-left"><span t-esc="current_capital"/></td>
                             <td class="text-left"><span t-field="l.amount"/></td>
-<!--                            <td class="text-left"><span t-field="l.company_id"/></td>-->
-							<td class="text-left"><span t-field="l.state"/></td>
                         </tr>
                     </t>
                     </tbody>
@@ -95,7 +90,7 @@
                             <li class="list-group-item flex-grow-1">
                                 <div class="o_download_pdf btn-toolbar flex-sm-nowrap">
                                     <div class="btn-group flex-grow-1 mr-1 mb-1">
-                                        <a class="btn btn-secondary btn-block o_download_btn" t-att-href="payment.get_portal_url(report_type='pdf', download=True)" title="Download"><i class="fa fa-download"/> Download</a>
+                                        <a class="btn btn-secondary btn-block o_download_btn" title="Download"><i class="fa fa-download"/> Download</a>
                                     </div>
                                 </div>
                             </li>
