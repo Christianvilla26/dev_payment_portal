@@ -3,3 +3,4 @@ controller/__pycache__/__init__.cpython-39.pyc
 controller/__pycache__/portal.cpython-39.pyc
 models/__pycache__/__init__.cpython-39.pyc
 models/__pycache__/account_payment.cpython-39.pyc
+.vscode/settings.json

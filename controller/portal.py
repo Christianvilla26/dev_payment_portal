@@ -147,7 +147,7 @@ class CustomerPortal(CustomerPortal):
             step=self._items_per_page
         )
         # search the count to display, according to the pager data
-        payment = payment_pool.search(domain, order=sort_order, limit=self._items_per_page, offset=pager['offset'])
+        payment = payment_pool.sudo().search(domain, order=sort_order, limit=self._items_per_page, offset=pager['offset'])
         request.session['my_payment_history'] = payment.ids[:100]
         if groupby == 'partner_id':
             grouped_payment = [request.env['account.payment'].concat(*g) for k, g in groupbyelem(payment, itemgetter('partner_id'))]
