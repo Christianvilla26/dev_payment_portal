@@ -59,6 +59,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                    <t t-set="total_capital" t-value="0"/>
+                    <t t-set="total_mora" t-value="0"/>
+                    <t t-set="total_amount" t-value="0"/>
                     <t t-foreach="group_payment" t-as="l">
                         <tr>
                             <td><a><t t-esc="l.name"/></a></td>
@@ -69,8 +72,19 @@
                             <td class="text-left"><span t-esc="current_capital"/></td>
                             <td class="text-left"><span t-field="l.amount"/></td>
                         </tr>
+                        <t t-set="total_capital" t-value="total_capital + l.amount - l.mora_pagada_custom_sr"/>
+                        <t t-set="total_mora" t-value="total_mora + l.mora_pagada_custom_sr"/>
+                        <t t-set="total_amount" t-value="total_amount + l.amount"/>
                     </t>
                     </tbody>
+                    <tfooter>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>Total</strong></td>
+                            <td class="text-left"><span t-esc="total_mora"/></td>
+                            <td class="text-left"><span t-esc="total_capital"/></td>
+                            <td class="text-left"><span t-esc="total_amount"/></td>
+                        </tr>
+                    </tfooter>
                 </t>
             </t>
         </t>
