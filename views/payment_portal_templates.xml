@@ -2,10 +2,14 @@
 <odoo>
     <template id="portal_payment" name="Portal My Home : Payment" inherit_id="portal.portal_my_home" priority="20">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-            <t  t-call="portal.portal_docs_entry">
-                <t t-set="title">Payment</t>
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="config_card" t-value="True"/>
+                <t t-set="title">Pagos</t>
                 <t t-set="url" t-value="'/my/payment'"/>
-                <t t-set="count" t-value="payment_count"/>
+                <t t-set="text" t-value="payment_count_label"/>
+                <t t-set="icon" t-value="'/dev_payment_portal/static/src/img/portal_payment_icon.svg'"/>
+                <t t-set="placeholder_count" t-value="'payment_count'"/>
+                <t t-set="show_count" t-value="False"/>
             </t>
         </xpath>
     </template>
@@ -38,53 +42,43 @@
             </t>
             <t t-if="payment" t-call="portal.portal_table">
                 <t t-foreach="grouped_payment" t-as="group_payment">
-                    <thead >
-                        <tr t-attf-class="{{'thead-light' if not groupby == 'none' else ''}}" >
-                            <th t-if="groupby == 'none'"></th>
+                    <thead>
+                        <tr t-attf-class="{{'thead-light' if groupby != 'none' else ''}}">
+                            <th t-if="groupby == 'none'"/>
                             <th t-else="">
                                 <t t-if="groupby == 'partner_id'">
                                     <em class="font-weight-normal text-muted">Partner:</em>
-                                    <span t-field="group_payment[0].sudo().partner_id"/>
+                                    <span t-field="group_payment[0].partner_id"/>
                                 </t>
                                 <t t-if="groupby == 'company_id'">
                                     <em class="font-weight-normal text-muted">Company:</em>
-                                    <span t-field="group_payment[0].sudo().company_id.name"/>
+                                    <span t-field="group_payment[0].company_id.name"/>
                                 </t>
                             </th>
-                            <th class="text-left">Memo</th>
-                            <th class="text-left">Fecha de Pago</th>
-                            <th class="text-left">Mora Pagada</th>
-                            <th class="text-left">Capital</th>
-                            <th class="text-left">Monto</th>
+                            <th class="text-left">Number</th>
+                            <th class="text-left">Reference</th>
+                            <th class="text-left">Payment Date</th>
+                            <th class="text-left">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                    <t t-set="total_capital" t-value="0"/>
-                    <t t-set="total_mora" t-value="0"/>
                     <t t-set="total_amount" t-value="0"/>
                     <t t-foreach="group_payment" t-as="l">
                         <tr>
-                            <td><a><t t-esc="l.name"/></a></td>
-                            <td class="text-left"><span t-field="l.ref"/></td>
-							<td class="text-left"><span t-field="l.date" t-options='{"widget": "date"}' /></td>
-                            <td class="text-left"><span t-field="l.mora_pagada_custom_sr"/></td>
-                            <t t-set="current_capital" t-value="l.amount - l.mora_pagada_custom_sr" />
-                            <td class="text-left"><span t-esc="current_capital"/></td>
+                            <td><a t-att-href="'/my/payment/%s' % l.id"><t t-esc="l.name"/></a></td>
+                            <td class="text-left"><span t-field="l.payment_reference"/></td>
+                            <td class="text-left"><span t-field="l.date" t-options='{"widget": "date"}'/></td>
                             <td class="text-left"><span t-field="l.amount"/></td>
                         </tr>
-                        <t t-set="total_capital" t-value="total_capital + l.amount - l.mora_pagada_custom_sr"/>
-                        <t t-set="total_mora" t-value="total_mora + l.mora_pagada_custom_sr"/>
                         <t t-set="total_amount" t-value="total_amount + l.amount"/>
                     </t>
                     </tbody>
-                    <tfooter>
+                    <tfoot>
                         <tr>
-                            <td colspan="3" class="text-right"><strong>Total</strong></td>
-                            <td class="text-left"><span t-esc="total_mora"/></td>
-                            <td class="text-left"><span t-esc="total_capital"/></td>
+                            <td t-att-colspan="4" class="text-right"><strong>Total</strong></td>
                             <td class="text-left"><span t-esc="total_amount"/></td>
                         </tr>
-                    </tfooter>
+                    </tfoot>
                 </t>
             </t>
         </t>
@@ -111,15 +105,15 @@
                             <li class="navspy list-group-item pl-0 flex-grow-1" t-ignore="true" role="complementary">
                                 <ul class="nav flex-column bs-sidenav"></ul>
                             </li>
-                            <li t-if="payment.user_id" class="list-group-item flex-grow-1">
-                                <div class="small mb-1"><strong class="text-muted">Your Contact</strong></div>
+                            <li t-if="payment.create_uid" class="list-group-item flex-grow-1">
+                                <div class="small mb-1"><strong class="text-muted">Created by</strong></div>
                                 <div class="row flex-nowrap">
                                     <div class="col flex-grow-0 pr-2">
-                                        <img class="rounded-circle mr4 float-left o_portal_contact_img" t-if="payment.user_id.image_1920" t-att-src="image_data_uri(payment.user_id.image_1920)" alt="Contact"/>
-                                        <img class="rounded-circle mr4 float-left o_portal_contact_img" t-if="not payment.user_id.image_1920" src="/web/static/src/img/placeholder.png" alt="Contact"/>
+                                        <img class="rounded-circle mr4 float-left o_portal_contact_img" t-if="payment.create_uid.image_1920" t-att-src="image_data_uri(payment.create_uid.image_1920)" alt="Contact"/>
+                                        <img class="rounded-circle mr4 float-left o_portal_contact_img" t-if="not payment.create_uid.image_1920" src="/web/static/src/img/placeholder.png" alt="Contact"/>
                                     </div>
                                     <div class="col pl-0" style="min-width: 150px">
-                                        <span t-field="payment.user_id.user_id" t-options='{"widget": "contact", "fields": ["name", "phone"], "no_marker": True}'/>
+                                        <span t-field="payment.create_uid" t-options='{"widget": "contact", "fields": ["name", "phone"], "no_marker": True}'/>
                                         <a href="#discussion" class="small"><i class="fa fa-comment"></i> Send message</a>
                                     </div>
                                 </div>
@@ -188,10 +182,10 @@
                                 <td width="5%" style="padding:3px">:</td>
                                 <td width="50%" style="padding:3px"><span t-field="payment.date"/></td>
                             </tr>
-							<tr>
-                                <td width="35%" style="padding:3px"><b>Memo</b></td>
+                            <tr>
+                                <td width="35%" style="padding:3px"><b>Reference</b></td>
                                 <td width="5%" style="padding:3px">:</td>
-                                <td width="50%" style="padding:3px"><span t-field="payment.ref"/></td>
+                                <td width="50%" style="padding:3px"><span t-field="payment.payment_reference"/></td>
                             </tr>
                             <tr>
                                 <td width="35%" style="padding:3px"><b>Journal</b></td>

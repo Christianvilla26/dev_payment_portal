@@ -9,25 +9,17 @@
 ##############################################################################
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
-from datetime import datetime, date
-from dateutil.relativedelta import relativedelta
 
 
-class account_payment(models.Model):
+class AccountPayment(models.Model):
     _name = 'account.payment'
-    _inherit = ['account.payment','portal.mixin']
-    
+    _inherit = ['account.payment', 'portal.mixin']
+
     def _get_report_base_filename(self):
         self.ensure_one()
-        return '%s %s' % (_('Payment'), self.name)   
-    
-    def _compute_access_url(self):
-        super(account_payment, self)._compute_access_url()
-        for data in self:
-            data.access_url = '/my/payment/%s' % (data.id)
-    
-        
-        
+        return '%s %s' % (_('Payment'), self.name)
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+    def _compute_access_url(self):
+        super()._compute_access_url()
+        for payment in self:
+            payment.access_url = '/my/payment/%s' % payment.id
