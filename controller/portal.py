@@ -19,7 +19,6 @@ class PaymentPortal(CustomerPortal):
         """Domain for payments visible by current portal user (posted only)."""
         return [
             ('partner_id', '=', request.env.user.partner_id.id),
-            ('move_id.state', '=', 'posted'),
         ]
 
     def _prepare_portal_layout_values(self):
